@@ -1,0 +1,16 @@
+[Unit]
+Description=aspnet-main: Web server
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/home/web/aspnet-main/etc/development/systemd/aspnet-main-web.env
+WorkingDirectory=/home/web/aspnet-main/src/Web
+ExecStart=/usr/local/dotnet-1.0.3/dotnet bin/Debug/netcoreapp1.0/Web.dll
+ExecStop=/bin/kill -WINCH ${MAINPID}
+Restart=always
+User=web
+Group=web
+
+[Install]
+WantedBy=multi-user.target
