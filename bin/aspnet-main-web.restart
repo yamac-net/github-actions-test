@@ -1,2 +1,5 @@
+cd /home/web/aspnet-main/src/Web
+/home/web/dotnet-1.0-sdk/dotnet restore
+/home/web/dotnet-1.0-sdk/dotnet build
 sudo systemctl reload nginx
 sudo systemctl restart aspnet-main-web
