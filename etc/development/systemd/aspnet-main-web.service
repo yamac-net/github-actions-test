@@ -11,6 +11,8 @@ ExecStop=/bin/kill -WINCH ${MAINPID}
 Restart=always
 User=web
 Group=web
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
