@@ -31,8 +31,8 @@ namespace App
             app.Command("cli", x => { })
             .OnExecute(() =>
             {
-                var exampleService = host.Services.GetRequiredService<IExampleService>();
-                Console.WriteLine(exampleService.GetCurrentTime());
+                var service = host.Services.GetRequiredService<IExampleService>();
+                Console.WriteLine(service.GetCurrentTime());
                 return 0;
             });
 
