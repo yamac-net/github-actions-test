@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.Example
+namespace App.Example
 {
     public interface IExampleService
     {

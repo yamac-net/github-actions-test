@@ -1,24 +1,32 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using App.Example;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Web
+namespace App
 {
-    public class Startup : Core.Startup
+    public class Startup
     {
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings-core.json", optional: true, reloadOnChange: true)
-                .AddJsonFile("appsettings-web.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings-core.{env.EnvironmentName}.json", optional: true)
-                .AddJsonFile($"appsettings-web.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
 
+        public IConfigurationRoot Configuration { get; protected set;  }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
+            services.AddSingleton<IExampleService, ExampleService>();
+        }
+        
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));

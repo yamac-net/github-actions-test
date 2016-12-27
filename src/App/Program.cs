@@ -1,11 +1,11 @@
-﻿using Core.Example;
+﻿using App.Example;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 
-namespace Cli
+namespace App
 {
     public class Program
     {
@@ -21,9 +21,9 @@ namespace Cli
 
             CommandLineApplication app = new CommandLineApplication(throwOnUnexpectedArg: false)
             {
-                Name = "Web App",
-                FullName = "The ASP.NET Core Web application.",
-                Description = "The ASP.NET Core Web application.",
+                Name = "AspNetMain",
+                FullName = "The ASP.NET Core Main application.",
+                Description = "The ASP.NET Core Main application.",
             };
             app.HelpOption("-h|--help");
 
@@ -39,7 +39,7 @@ namespace Cli
             // Execute
             app.OnExecute(() =>
             {
-                app.ShowHelp();
+                host.Run();
                 return 0;
             });
 

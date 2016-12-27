@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-EnvironmentFile=/home/web/aspnet-main/etc/development/systemd/aspnet-main-web.env
-WorkingDirectory=/home/web/aspnet-main/src/Web
-ExecStart=/home/web/dotnet-1.0-sdk/dotnet bin/Debug/netcoreapp1.0/Web.dll
+EnvironmentFile=/home/web/aspnet-main/etc/beta/systemd/aspnet-main-web.env
+WorkingDirectory=/home/web/aspnet-main/src/App/bin/Release/netcoreapp1.0/publish
+ExecStart=/home/web/dotnet-1.0-sdk/dotnet App.dll
 ExecStop=/bin/kill -WINCH ${MAINPID}
 Restart=always
 User=web

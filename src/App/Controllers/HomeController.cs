@@ -1,7 +1,7 @@
-﻿using Core.Example;
+﻿using App.Example;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Web.Controllers
+namespace App.Controllers
 {
     public class HomeController : Controller
     {
