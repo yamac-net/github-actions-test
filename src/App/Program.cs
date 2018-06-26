@@ -11,7 +11,7 @@ namespace App
     {
         public static void Main(string[] args)
         {
-            var host = BuildWebHost(args);
+            var host = CreateWebHostBuilder(args).Build();
 
             CommandLineApplication app = new CommandLineApplication(throwOnUnexpectedArg: false)
             {
@@ -40,9 +40,8 @@ namespace App
             app.Execute(args);
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
+                .UseStartup<Startup>();
     }
 }
