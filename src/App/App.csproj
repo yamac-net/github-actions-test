@@ -10,6 +10,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="2.1.2-dev-00028" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="3.0.2-dev-00187" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.2-dev-00788" />
   </ItemGroup>
 
 </Project>
