@@ -1,7 +1,6 @@
 ﻿using App.Example;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +19,11 @@ namespace App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            // Mvc
+            services.AddControllersWithViews();
+            services.AddRazorPages();
+
+            // Services
             services.AddSingleton<IExampleService, ExampleService>();
         }
 
@@ -38,12 +41,14 @@ namespace App
 
             app.UseStaticFiles();
 
-            app.UseRouting(routes =>
+            // Mvc
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapControllerRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-                routes.MapRazorPages();
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
     }
