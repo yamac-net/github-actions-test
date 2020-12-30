@@ -33,14 +33,14 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: '''
-                                        src/*/bin/Release/**/publish/**
+                                        src/App/bin/Release/netcoreapp3.1/linux-x64/publish/**
                                         etc/**
                                     ''',
                                     patternSeparator: '[, \\r\\n]+',
                                     remoteDirectory: 'aspnet-main',
                                     cleanRemote: true,
                                     execCommand: '''
-                                        chmod +x aspnet-main/src/App/bin/Release/netcoreapp3.0/linux-x64/publish/App
+                                        chmod +x aspnet-main/src/App/bin/Release/netcoreapp3.1/linux-x64/publish/App
                                         sh aspnet-main/etc/beta/bin/aspnet-main-web.restart
                                     ''',
                                     usePty: true,
