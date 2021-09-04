@@ -1,0 +1,14 @@
+[Unit]
+Description=aspnet-test-app-beta
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/home/web/etc/systemd/docker.env
+EnvironmentFile=/home/web/etc/systemd/aspnet-test-app-beta.env
+WorkingDirectory=/home/web/etc/systemd
+ExecStart=/home/web/bin/docker run --rm --pull always -e TZ=Asia/Tokyo --name $APP_NAME -p $APP_PUBLISH --env-file $APP_ENV_FILE $APP_IMAGE
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

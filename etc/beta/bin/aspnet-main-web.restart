@@ -1,3 +1,0 @@
-supervisorctl update
-supervisorctl restart aspnet-main-web
-nginx-restart.sh
