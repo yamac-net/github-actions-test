@@ -16,6 +16,8 @@ on:
         required: true
 
 env:
+  DOCKER_REGISTRY: ghcr.io
+  DOCKER_USERNAME: yamac-net
   DOCKER_IMAGE_NAME: aspnet-test/app
   SERVICE_NAME_BETA: aspnet-test-app-beta
   SERVICE_NAME_PRODUCTION: aspnet-test-app
@@ -50,8 +52,8 @@ jobs:
       if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
       uses: docker/login-action@v1
       with:
-        registry: ${{ secrets.DOCKER_REGISTRY }}
-        username: ${{ secrets.DOCKER_USERNAME }}
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Docker Build on feature
@@ -70,7 +72,7 @@ jobs:
         target: production
         push: true
         tags: |
-          ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:develop
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:develop
 
     - name: Docker Build and Push on tags
       if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
@@ -80,8 +82,8 @@ jobs:
         target: production
         push: true
         tags: |
-          ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.git_env.outputs.GIT_TAG }}
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.git_env.outputs.GIT_TAG }}
 
     - name: Deploy to beta
       if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
