@@ -36,10 +36,6 @@ jobs:
     - name: Show Environment Variables
       run: env
 
-    - name: Setup Git Environment
-      id: git_env
-      run: echo ::set-output name=GIT_TAG::${GITHUB_REF#refs/tags/}
-
     - name: Check workflow_dispatch
       if: github.event_name == 'workflow_dispatch'
       run: |
@@ -83,7 +79,7 @@ jobs:
         push: true
         tags: |
           ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.git_env.outputs.GIT_TAG }}
+          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${GITHUB_REF#refs/tags/}
 
     - name: Deploy to beta
       if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
