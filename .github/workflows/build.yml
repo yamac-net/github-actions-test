@@ -19,6 +19,9 @@ env:
   DOCKER_IMAGE_NAME: aspnet-test/app
   SERVICE_NAME_BETA: aspnet-test-app-beta
   SERVICE_NAME_PRODUCTION: aspnet-test-app
+  SLACK_CHANNEL: notification
+  SLACK_USERNAME: GitHub
+  SLACK_ICON_URL: https://ca.slack-edge.com/T0E2QBMJ4-U02CH8BM31D-ad5f9ad46e20-192
 
 jobs:
   build:
@@ -109,8 +112,8 @@ jobs:
         }]')"
         curl -s -X POST \
         -d "token=${{ secrets.SLACK_TOKEN }}" \
-        -d "channel=${{ secrets.SLACK_CHANNEL }}" \
-        -d "username=${{ secrets.SLACK_USERNAME }}" \
-        -d "icon_url=${{ secrets.SLACK_ICON_URL }}" \
+        -d "channel=#${{ env.SLACK_CHANNEL }}" \
+        -d "username=${{ env.SLACK_USERNAME }}" \
+        -d "icon_url=${{ env.SLACK_ICON_URL }}" \
         -d "attachments=$SLACK_ATTACHMENTS" \
         https://slack.com/api/chat.postMessage
