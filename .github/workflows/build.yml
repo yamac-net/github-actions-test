@@ -16,8 +16,6 @@ on:
         required: true
 
 env:
-  DOCKER_REGISTRY: ghcr.io
-  DOCKER_USERNAME: yamac-net
   DOCKER_IMAGE_NAME: aspnet-test/app
   SERVICE_NAME_BETA: aspnet-test-app-beta
   SERVICE_NAME_PRODUCTION: aspnet-test-app
@@ -66,8 +64,8 @@ jobs:
       if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
       uses: docker/login-action@v1
       with:
-        registry: ${{ env.DOCKER_REGISTRY }}
-        username: ${{ env.DOCKER_USERNAME }}
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
     - name: Docker Build and Push on develop or deploy
@@ -78,7 +76,7 @@ jobs:
         target: package
         push: true
         tags: |
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:develop
+          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:develop
 
     - name: Docker Build and Push on tags
       if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
@@ -88,8 +86,8 @@ jobs:
         target: package
         push: true
         tags: |
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:${GITHUB_REF#refs/tags/}
+          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${GITHUB_REF#refs/tags/}
 
   deploy:
     runs-on: self-hosted
