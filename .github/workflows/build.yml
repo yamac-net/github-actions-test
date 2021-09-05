@@ -18,7 +18,7 @@ on:
 env:
   DOCKER_IMAGE_NAME: aspnet-test/app
   SERVICE_NAME_BETA: aspnet-test-app-beta
-  SERVICE_NAME_PRODUCTION: aspnet-test-app
+  SERVICE_NAME_PRODUCTION: aspnet-test-app-prod
   SLACK_CHANNEL: notification
   SLACK_USERNAME: GitHub
   SLACK_ICON_URL: https://ca.slack-edge.com/T0E2QBMJ4-U02CH8BM31D-ad5f9ad46e20-192
@@ -27,12 +27,18 @@ jobs:
   setup:
     runs-on: self-hosted
 
+    outputs:
+      git_tag: ${{ env.GIT_TAG }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Show Environment Variables
       run: env
+
+    - name: Setup Git Environment
+      run: echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
     - name: Check workflow_dispatch
       if: github.event_name == 'workflow_dispatch'
@@ -56,7 +62,7 @@ jobs:
 
   build:
     runs-on: self-hosted
-    needs: test
+    needs: [ setup, test ]
     if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
 
     steps:
@@ -87,12 +93,11 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${GITHUB_REF#refs/tags/}
+          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.setup.outputs.git_tag }}
 
   deploy:
     runs-on: self-hosted
-    needs: build
-    environment: beta
+    needs: [ setup, build ]
 
     steps:
     - name: Deploy to beta
@@ -103,6 +108,16 @@ jobs:
         -d "svc=${{ env.SERVICE_NAME_BETA }}" \
         -d "token=${{ secrets.DEPLOY_TOKEN }}" \
         -d "tag=develop" \
+        https://service.yamac.net/service
+
+    - name: Deploy to production
+      if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
+      run: |
+        curl -s -X POST \
+        -d "op=deploy" \
+        -d "svc=${{ env.SERVICE_NAME_PRODUCTION }}" \
+        -d "token=${{ secrets.DEPLOY_TOKEN }}" \
+        -d "tag=${{ needs.setup.outputs.git_tag }}" \
         https://service.yamac.net/service
 
   notify:
