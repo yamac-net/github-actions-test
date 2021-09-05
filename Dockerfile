@@ -5,13 +5,10 @@ COPY . /Build
 FROM base as test
 RUN dotnet build && dotnet test
 
-FROM test as development
-ENTRYPOINT [ "dotnet", "run" ]
-
-FROM test as publish
+FROM base as build
 RUN dotnet publish -c Release
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 as production
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 as package
 WORKDIR /App
-COPY --from=publish /Build/src/App/bin/Release/net5.0/publish/ /App
+COPY --from=build /Build/src/App/bin/Release/net5.0/publish/ /App
 ENTRYPOINT [ "dotnet", "App.dll" ]
