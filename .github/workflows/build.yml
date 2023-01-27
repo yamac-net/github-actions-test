@@ -53,13 +53,13 @@ jobs:
     needs: setup
 
     steps:
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-        
+    - run: docker context create builders
+    - run: docker context use builders
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
-        driver: docker
+        endpoint: builders
 
     - name: Docker Build for test
       uses: docker/build-push-action@v3
