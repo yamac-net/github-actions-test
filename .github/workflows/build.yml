@@ -58,7 +58,6 @@ jobs:
       with:
         install: true
         use: false
-        context: default
 
     - name: Docker Build for test
       uses: docker/build-push-action@v2
