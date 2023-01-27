@@ -53,11 +53,14 @@ jobs:
     needs: setup
 
     steps:
+    - name: Set up Docker Context for Buildx
+      run: docker context create builders
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       with:
-        install: true
-        use: false
+        version: latest
+        endpoint: builders
 
     - name: Docker Build for test
       uses: docker/build-push-action@v2
