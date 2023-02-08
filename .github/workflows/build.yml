@@ -118,13 +118,14 @@ jobs:
     steps:
     - name: Deploy to beta
       if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
-      run: |
-        curl -s -X POST \
-        -d "op=deploy" \
-        -d "svc=${{ env.SERVICE_NAME_BETA }}" \
-        -d "token=${{ secrets.DEPLOY_TOKEN }}" \
-        -d "tag=develop" \
-        https://service.yamac.net/service
+      #run: |
+      #  curl -s -X POST \
+      #  -d "op=deploy" \
+      #  -d "svc=${{ env.SERVICE_NAME_BETA }}" \
+      #  -d "token=${{ secrets.DEPLOY_TOKEN }}" \
+      #  -d "tag=develop" \
+      #  https://service.yamac.net/service
+      run: kubectl -n app rollout restart deployment.apps/aspnet-test-app
 
     - name: Deploy to production
       if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
