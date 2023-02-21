@@ -17,8 +17,6 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: aspnet-test/app
-  SERVICE_NAME_BETA: aspnet-test-app-beta
-  SERVICE_NAME_PRODUCTION: aspnet-test-app-prod
   SLACK_CHANNEL: notification
   SLACK_USERNAME: GitHub
   SLACK_ICON_URL: https://ca.slack-edge.com/T0E2QBMJ4-U02CH8BM31D-ad5f9ad46e20-192
@@ -81,9 +79,9 @@ jobs:
       if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
       uses: docker/login-action@v2
       with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.DOCKER_TOKEN }}
+        registry: ${{ vars.REGISTRY_HOST }}
+        username: ${{ vars.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -98,7 +96,7 @@ jobs:
         target: package
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:develop
+          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:develop
 
     - name: Docker Build and Push on tags
       if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
@@ -108,8 +106,8 @@ jobs:
         target: package
         push: true
         tags: |
-          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ghcr.io/${{ github.repository_owner }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.setup.outputs.git_tag }}
+          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.setup.outputs.git_tag }}
 
   deploy:
     runs-on: self-hosted
@@ -118,24 +116,11 @@ jobs:
     steps:
     - name: Deploy to beta
       if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
-      #run: |
-      #  curl -s -X POST \
-      #  -d "op=deploy" \
-      #  -d "svc=${{ env.SERVICE_NAME_BETA }}" \
-      #  -d "token=${{ secrets.DEPLOY_TOKEN }}" \
-      #  -d "tag=develop" \
-      #  https://service.yamac.net/service
-      run: kubectl -n app rollout restart deployment.apps/aspnet-test-app
+      run: kubectl -n app-beta rollout restart deployment.apps/aspnet-test-app
 
     - name: Deploy to production
       if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
-      run: |
-        curl -s -X POST \
-        -d "op=deploy" \
-        -d "svc=${{ env.SERVICE_NAME_PRODUCTION }}" \
-        -d "token=${{ secrets.DEPLOY_TOKEN }}" \
-        -d "tag=${{ needs.setup.outputs.git_tag }}" \
-        https://service.yamac.net/service
+      run: echo "Not supported"
 
   notify:
     runs-on: self-hosted
