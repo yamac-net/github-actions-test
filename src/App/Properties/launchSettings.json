@@ -16,10 +16,10 @@
     },
     "App": {
       "commandName": "Project",
+      "applicationUrl": "http://localhost:9600",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:9600"
+      }
     }
   }
 }

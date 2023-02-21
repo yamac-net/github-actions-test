@@ -1,56 +1,31 @@
 ﻿using App.Example;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
-using System;
 
-namespace App
+var builder = WebApplication.CreateBuilder(args);
+
+// Logging.
+builder.Host.UseSerilog((context, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration));
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<IExampleService, ExampleService>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-
-            CommandLineApplication app = new CommandLineApplication(throwOnUnexpectedArg: false)
-            {
-                Name = "AspNetMain",
-                FullName = "The ASP.NET Core Main application.",
-                Description = "The ASP.NET Core Main application.",
-            };
-            app.HelpOption("-h|--help");
-
-            // Cli
-            app.Command("cli", x => { })
-            .OnExecute(() =>
-            {
-                var service = host.Services.GetRequiredService<IExampleService>();
-                Console.WriteLine(service.GetCurrentTime());
-                return 0;
-            });
-
-            // Execute
-            app.OnExecute(() =>
-            {
-                host.Run();
-                return 0;
-            });
-
-            app.Execute(args);
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder
-                .UseStartup<Startup>()
-                .UseSerilog((hostingContext, loggerConfiguration) =>
-                {
-                    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
-                });
-            });
-    }
+    app.UseExceptionHandler("/Home/Error");
 }
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

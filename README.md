@@ -1,3 +1,3 @@
 # Introduction
 
-The ASP.NET Core Main application.
+The ASP.NET Core Test application.

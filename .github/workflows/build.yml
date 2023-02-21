@@ -93,7 +93,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        target: package
+        target: package-app
         push: true
         tags: |
           ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:develop
@@ -103,7 +103,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        target: package
+        target: package-app
         push: true
         tags: |
           ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:latest

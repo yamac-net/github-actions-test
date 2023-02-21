@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace App.Example;
 
-namespace App.Example
+public interface IExampleService
 {
-    public interface IExampleService
-    {
-        DateTime GetCurrentTime();
-    }
+    DateTime GetCurrentTime();
 }
