@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aspnet-test-app
+spec:
+  tls:
+  - hosts:
+    - "*.yamac.net"
+    secretName: yamac-net-tls
+  rules:
+  - host: www-test.yamac.net
