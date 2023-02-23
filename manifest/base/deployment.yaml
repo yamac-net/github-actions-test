@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
       - name: aspnet-test-app
-        image: ghcr.io/yamac-net/aspnet-test/app:develop
+        image: cr.yamac.net/aspnet-test/app:develop
         ports:
         - containerPort: 9590
         env:
