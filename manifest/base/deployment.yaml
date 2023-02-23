@@ -6,6 +6,7 @@ spec:
   replicas: 1
   template:
     spec:
+      serviceAccountName: deployer
       containers:
       - name: aspnet-test-app
         image: cr.yamac.net/aspnet-test/app:develop
