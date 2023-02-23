@@ -117,8 +117,7 @@ jobs:
     - name: Deploy to beta
       if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
       run: |
-        kubectl kustomize manifest/overlays/beta > manifest.yaml
-        kubectl apply -f manifest.yaml
+        kubectl apply -k manifest/overlays/beta
         kubectl -n app-beta rollout restart deployment.apps/aspnet-test-app
 
     - name: Deploy to production
