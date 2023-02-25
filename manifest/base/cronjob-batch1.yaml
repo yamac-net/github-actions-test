@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: aspnet-test-batch1
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "0 */2 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
