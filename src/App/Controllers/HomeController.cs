@@ -1,5 +1,4 @@
-﻿using App.Example;
-using App.Models;
+﻿using App.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,16 +6,13 @@ namespace App.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly IExampleService _exampleService;
-
-    public HomeController(IExampleService exampleService)
+    public HomeController()
     {
-        _exampleService = exampleService;
     }
 
     public IActionResult Index()
     {
-        ViewBag.CurrentTime = _exampleService.GetCurrentTime();
+        ViewBag.CurrentTime = DateTime.Now;
         return View();
     }
 

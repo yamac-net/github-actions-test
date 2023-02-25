@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:9600",
+      "applicationUrl": "http://localhost:9590",
       "sslPort": 0
     }
   },
@@ -14,9 +14,23 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "App": {
+    "Batch1": {
       "commandName": "Project",
-      "applicationUrl": "http://localhost:9600",
+      "commandLineArgs": "batch1",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Batch2": {
+      "commandName": "Project",
+      "commandLineArgs": "batch2",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Web": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:9590",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

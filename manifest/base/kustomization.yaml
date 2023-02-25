@@ -10,3 +10,5 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- cronjob-batch1.yaml
+- cronjob-batch2.yaml
