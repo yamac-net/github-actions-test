@@ -9,3 +9,12 @@ spec:
     secretName: yamac-site-tls
   rules:
   - host: www-test.yamac.site
+    http:
+      paths:
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: aspnet-test-app
+              port:
+                number: 9590
