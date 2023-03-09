@@ -17,7 +17,7 @@ on:
 
 env:
   DOCKER_IMAGE_NAME: aspnet-test/app
-  SLACK_CHANNEL: notification
+  SLACK_CHANNEL_ID: "#notification"
   SLACK_USERNAME: GitHub
   SLACK_ICON_URL: https://ca.slack-edge.com/T0E2QBMJ4-U02CH8BM31D-ad5f9ad46e20-192
 
@@ -132,25 +132,20 @@ jobs:
     steps:
     - name: Slack Notification
       if: ${{ always() }}
-      run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          SLACK_COLOR="good"
-        else
-          SLACK_COLOR="danger"
-        fi
-        SLACK_ATTACHMENTS="$(jq -n -c \
-        --arg color "$SLACK_COLOR" \
-        --arg title "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-        --arg title_link "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
-        '[{
-            color: $color,
-            title: $title,
-            title_link: $title_link,
-        }]')"
-        curl -s -X POST \
-        -d "token=${{ secrets.SLACK_TOKEN }}" \
-        -d "channel=#${{ env.SLACK_CHANNEL }}" \
-        -d "username=${{ env.SLACK_USERNAME }}" \
-        -d "icon_url=${{ env.SLACK_ICON_URL }}" \
-        -d "attachments=$SLACK_ATTACHMENTS" \
-        https://slack.com/api/chat.postMessage
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: ${{ env.SLACK_CHANNEL_ID }}
+        payload: |
+          {            
+            "username": "${{ env.SLACK_USERNAME }}",
+            "icon_url": "${{ env.SLACK_ICON_URL }}",
+            "attachments": [
+              {
+                "color": "${{ (job.status == 'success' && 'good') || 'danger' }}",
+                "title": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                "title_link": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }
+            ]
+          }
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
