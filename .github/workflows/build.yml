@@ -67,6 +67,12 @@ jobs:
           target: test
           push: false
 
+      - name: Check deployment
+        run: |
+          kubectl kustomize deployment/kubernetes/overlays/dev
+          kubectl kustomize deployment/kubernetes/overlays/beta
+          kubectl apply -k deployment/kubernetes/overlays/beta --dry-run=client
+
   build:
     runs-on: self-hosted
     needs: [ setup, test ]
