@@ -29,42 +29,43 @@ jobs:
       git_tag: ${{ env.GIT_TAG }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Show Environment Variables
-      run: env
+      - name: Show Environment Variables
+        run: env
 
-    - name: Setup Git Environment
-      run: echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Setup Git Environment
+        run: echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-    - name: Check workflow_dispatch
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        if [ '${{ github.event.inputs.deploy }}' != 'deploy' ]; then
-          echo "Can not confirm to deploy."
-          exit -1
-        fi
+      - name: Check workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ '${{ github.event.inputs.deploy }}' != 'deploy' ]; then
+            echo "Can not confirm to deploy."
+            exit -1
+          fi
 
   test:
     runs-on: self-hosted
     needs: setup
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-        driver: docker
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver: docker
 
-    - name: Docker Build for test
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        target: test
-        push: false
+      - name: Docker Build for test
+        uses: docker/build-push-action@v3
+        with:
+          network: host
+          context: .
+          target: test
+          push: false
 
   build:
     runs-on: self-hosted
@@ -72,57 +73,59 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      
-    - name: Login to Docker Registry
-      if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ vars.REGISTRY_HOST }}
-        username: ${{ vars.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Login to Docker Registry
+        if: startsWith(github.ref, 'refs/heads/develop') || startsWith(github.ref, 'refs/tags/') || github.event.inputs.deploy == 'deploy'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ vars.REGISTRY_HOST }}
+          username: ${{ vars.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-        driver: docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver: docker
 
-    - name: Docker Build and Push on develop or deploy
-      if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        target: package-app
-        push: true
-        tags: |
-          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:develop
+      - name: Docker Build and Push on develop or deploy
+        if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
+        uses: docker/build-push-action@v3
+        with:
+          network: host
+          context: .
+          target: package-app
+          push: true
+          tags: |
+            ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:develop
 
-    - name: Docker Build and Push on tags
-      if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        target: package-app
-        push: true
-        tags: |
-          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.setup.outputs.git_tag }}
+      - name: Docker Build and Push on tags
+        if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
+        uses: docker/build-push-action@v3
+        with:
+          network: host
+          context: .
+          target: package-app
+          push: true
+          tags: |
+            ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+            ${{ vars.REGISTRY_HOST }}/${{ env.DOCKER_IMAGE_NAME }}:${{ needs.setup.outputs.git_tag }}
 
   deploy:
     runs-on: self-hosted
     needs: [ setup, build ]
 
     steps:
-    - name: Deploy to beta
-      if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
-      run: |
-        kubectl apply -k manifest/overlays/beta
-        kubectl -n app-beta rollout restart deployment.apps/aspnet-test-app
+      - name: Deploy to beta
+        if: startsWith(github.ref, 'refs/heads/develop') || github.event.inputs.deploy == 'deploy'
+        run: |
+          kubectl apply -k deployment/kubernetes/overlays/beta
+          kubectl -n app-beta rollout restart deployment.apps/aspnet-test-app
 
-    - name: Deploy to production
-      if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
-      run: echo "Not supported"
+      - name: Deploy to production
+        if: startsWith(github.ref, 'refs/tags/') && github.event.inputs.deploy != 'deploy'
+        run: echo "Not supported"
 
   notify:
     runs-on: self-hosted
@@ -130,22 +133,22 @@ jobs:
     if: always()
 
     steps:
-    - name: Slack Notification
-      if: ${{ always() }}
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: ${{ env.SLACK_CHANNEL_ID }}
-        payload: |
-          {            
-            "username": "${{ env.SLACK_USERNAME }}",
-            "icon_url": "${{ env.SLACK_ICON_URL }}",
-            "attachments": [
-              {
-                "color": "${{ (job.status == 'success' && 'good') || 'danger' }}",
-                "title": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                "title_link": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              }
-            ]
-          }
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      - name: Slack Notification
+        if: ${{ always() }}
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: ${{ env.SLACK_CHANNEL_ID }}
+          payload: |
+            {            
+              "username": "${{ env.SLACK_USERNAME }}",
+              "icon_url": "${{ env.SLACK_ICON_URL }}",
+              "attachments": [
+                {
+                  "color": "${{ (job.status == 'success' && 'good') || 'danger' }}",
+                  "title": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                  "title_link": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
